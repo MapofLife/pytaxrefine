@@ -3,7 +3,9 @@ try:
 except ImportError:
     import json
 
+import time, urllib
 import requests
+from google.appengine.api import urlfetch
 
 from app import app
 from flask import request, jsonify
@@ -63,9 +65,20 @@ def gbif_match_search(name, offset, limit):
         "offset": offset,
         "limit": limit
     }
-    r = requests.get('http://api.gbif.org/v1/species', params=params, timeout=60)
-    if r.status_code == 200:
-        return r.json()
+    # print('Requesting: %s', name)
+    # r = requests.get('http://api.gbif.org/v1/species', params=params, timeout=60, headers={'Connection': None})
+    # print(r.url)
+    # print(r.headers)
+    # if r.status_code == 200:
+    #     return r.json()
+
+    response = urlfetch.fetch(url='http://api.gbif.org/v1/species',
+                              payload=urllib.urlencode(params),
+                              deadline=60,
+                              method=urlfetch.GET)
+    if response.status_code == 200:
+        results = response.content
+        return json.loads(results)
 
     return None
 
@@ -76,9 +89,17 @@ def gbif_ft_search(name, offset, limit):
         "offset": offset,
         "limit": limit
     }
-    r = requests.get('http://api.gbif.org/v1/species/search', params=params, timeout=60)
-    if r.status_code == 200:
-        return r.json()
+    # r = requests.get('http://api.gbif.org/v1/species/search', params=params, timeout=60)
+    # if r.status_code == 200:
+    #     return r.json()
+
+    response = urlfetch.fetch(url='http://api.gbif.org/v1/species/search',
+                              payload=urllib.urlencode(params),
+                              deadline=60,
+                              method=urlfetch.GET)
+    if response.status_code == 200:
+        results = response.content
+        return json.loads(results)
 
     return None
 
@@ -225,6 +246,7 @@ def reconcile():
         for (key, query) in queries.items():
             # results[key] = {"result": search(query['query'])}
             results[key] = search(query['query'])
+            # time.sleep(5)
 
         return jsonpify(results)
 
