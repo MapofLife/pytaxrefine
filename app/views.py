@@ -72,8 +72,8 @@ def gbif_match_search(name, offset, limit):
     # if r.status_code == 200:
     #     return r.json()
 
-    response = urlfetch.fetch(url='http://api.gbif.org/v1/species',
-                              payload=urllib.urlencode(params),
+    url = 'http://api.gbif.org/v1/species?%s' % urllib.urlencode(params)
+    response = urlfetch.fetch(url=url,
                               deadline=60,
                               method=urlfetch.GET)
     if response.status_code == 200:
@@ -93,8 +93,8 @@ def gbif_ft_search(name, offset, limit):
     # if r.status_code == 200:
     #     return r.json()
 
+    url = 'http://api.gbif.org/v1/species/search?%s' % urllib.urlencode(params)
     response = urlfetch.fetch(url='http://api.gbif.org/v1/species/search',
-                              payload=urllib.urlencode(params),
                               deadline=60,
                               method=urlfetch.GET)
     if response.status_code == 200:
