@@ -3,8 +3,11 @@ try:
 except ImportError:
     import json
 
-import time, urllib
+import urllib
+import logging
+
 import requests
+
 from google.appengine.api import urlfetch
 
 from app import app
@@ -30,10 +33,10 @@ def search(query):
     results = get_gbif_match_all(query)
 
     if len(results) == 0:
-        print("  > No matches found, carrying out full-text search instead.")
+        logging.info("  > No matches found, carrying out full-text search instead.")
         results = get_gbif_full_text_matches_for_name(query)
 
-    print("Retrieved %d matches for '%s'" % (len(results), query))
+    logging.info("Retrieved %d matches for '%s'" % (len(results), query))
 
     # SKIPPED: Filter out on the basis of kingdom.
 
@@ -65,10 +68,7 @@ def gbif_match_search(name, offset, limit):
         "offset": offset,
         "limit": limit
     }
-    # print('Requesting: %s', name)
     # r = requests.get('http://api.gbif.org/v1/species', params=params, timeout=60, headers={'Connection': None})
-    # print(r.url)
-    # print(r.headers)
     # if r.status_code == 200:
     #     return r.json()
 
@@ -174,7 +174,7 @@ def summarize_name_usages(results):
         gbif_keys = sorted(gbif_keys)
 
         if len(gbif_keys) == 0:
-            print("No gbif_key provided!")
+            logging.info("No gbif_key provided!")
             return None
 
         gbif_key = gbif_keys[0]
@@ -230,8 +230,8 @@ def jsonpify(obj):
 def reconcile():
     query = request.form.get('query')
     if query:
-        print('Got query')
-        print(query)
+        logging.info('Got query')
+        logging.info(query)
         if query.startswith("{"):
             query = json.loads(query)['query']
         results = search(query)
@@ -239,14 +239,13 @@ def reconcile():
 
     queries = request.form.get('queries')
     if queries:
-        print('Got queries')
-        print(queries)
+        logging.info('Got queries')
+        logging.info(queries)
         queries = json.loads(queries)
         results = {}
         for (key, query) in queries.items():
             # results[key] = {"result": search(query['query'])}
             results[key] = search(query['query'])
-            # time.sleep(5)
 
         return jsonpify(results)
 
