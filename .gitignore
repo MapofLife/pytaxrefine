@@ -1,5 +1,6 @@
 # ignore the flask lib
 flask
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
